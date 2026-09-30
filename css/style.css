@@ -839,3 +839,19 @@ body {
   .reveal [data-reveal="split"] .spread__col:first-child,
   .reveal [data-reveal="split"] .spread__col + .spread__col { transform: translateY(2rem); }
 }
+
+/* Phones: every chapter title is exactly two lines (each half kept whole), and
+   chapter III's entrance fades in instead of animating letter spacing, which
+   made the title re-wrap mid-animation */
+@media (max-width: 760px) {
+  .chapter__title .t-line,
+  .coda__title .t-line { display: block; white-space: nowrap; }
+  .chapter__title { font-size: min(2.5rem, 9.6vw); }
+  .coda__title { font-size: min(3rem, 11.5vw); }
+  .reveal [data-reveal="settle"] .chapter__title {
+    letter-spacing: -.02em;
+    transform: translateY(.6rem);
+    transition: opacity 1.8s ease, transform 2s var(--ease);
+  }
+  .reveal [data-reveal="settle"].is-in .chapter__title { transform: none; }
+}
