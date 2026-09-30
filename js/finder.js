@@ -254,4 +254,6 @@ function start() {
 // Re-measure on resize (debounced); existing words keep their spacing.
 let resizeTimer;
 addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(measure, 150); });
-document.fonts.ready.then(start);
+// Start once the ticker's own font is in (word widths depend on it); no need to
+// wait for the serif fonts the rest of the page uses.
+document.fonts.load('1em "Archivo"').then(start, start);

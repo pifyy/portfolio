@@ -5,7 +5,7 @@ One page, in order:
 1. **The finder:** keywords drift right → left into a search box. Each keyword
    that arrives is typed in, the spinner turns, and the wall of paintings flips
    over to that keyword's set.
-2. **The title plate:** Vermeer's *Girl with a Pearl Earring* mounted on board,
+2. **The title plate:** Vermeer's *Girl with a Pearl Earring* on canvas,
    with "Beauty Didn't Die, You Stopped Looking" set across it.
 3. **The essay:** five numbered chapters on canvas, a two-column "cause & consequence" section, and full-bleed,
    close-cropped paintings (thick brushwork) with a line set over each. The

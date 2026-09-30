@@ -272,7 +272,7 @@ body {
 }
 
 /* ==========================================================================
-   Title plate: warm paper, a mounted painting, a headline running across it.
+   Title plate: warm paper, a painting, a headline running across it.
    Everything is sized from the section's height (--h), so the white copy of
    the headline can be clipped to exactly the painting's box.
    ========================================================================== */
@@ -309,28 +309,6 @@ body {
 /* same positions as the finder's rules, so the lines run on unbroken */
 .plate::before { left: 1.6vw; }
 .plate::after { right: 1.6vw; }
-
-/* the board the painting is mounted on: runs off the bottom of the page */
-.plate__mount {
-  position: absolute;
-  top: calc(var(--h) * .036);
-  bottom: -2rem;
-  left: 50%;
-  width: calc(var(--art-w) * 1.4);
-  transform: translateX(-50%);
-  background: #f1f0eb;
-  box-shadow: 0 0 0 1px rgb(0 0 0 / .03), 0 .4rem 1.6rem rgb(60 50 30 / .07);
-}
-.plate__tape {
-  position: absolute;
-  top: .6%;
-  width: 11%;
-  height: 3.2%;
-  background: linear-gradient(rgb(200 170 120 / .55), rgb(215 190 145 / .45));
-  mix-blend-mode: multiply;
-}
-.plate__tape--left { left: 3%; transform: rotate(-2deg); }
-.plate__tape--right { right: 3%; transform: rotate(1.5deg); }
 
 .plate__art {
   position: absolute;
@@ -619,6 +597,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .texture__img { animation: none; }
 }
+/* Don't keep drifting paintings that are off screen */
+.reveal [data-reveal]:not(.is-in) .texture__img { animation-play-state: paused; }
 /* darkens the middle most, so the words read without hiding the paint */
 .texture::after {
   content: "";
