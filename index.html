@@ -3,12 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pierce (from Online)</title>
+  <title>Pierce</title>
   <meta name="theme-color" content="#050505">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✷</text></svg>">
   <link rel="preload" href="fonts/Archivo-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css">
   <script src="js/finder.js" defer></script>
+  <!-- Scroll-in animations are opt-in: only hide things up front when the script
+       that reveals them can run, and not for people who prefer reduced motion -->
+  <script>
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("reveal");
+  </script>
 </head>
 <body>
   <!-- Keywords drift right → left into the search box; each one that arrives
@@ -47,7 +52,7 @@
          --zoom (how close, so the brushwork shows) and --veil (how much to darken). -->
     <article class="essay" aria-labelledby="plate-title">
 
-      <section class="chapter" aria-labelledby="ch-1">
+      <section class="chapter" aria-labelledby="ch-1" data-reveal="words">
         <p class="chapter__num">I.</p>
         <h2 class="chapter__title" id="ch-1">Access is not <em>understanding</em></h2>
         <div class="chapter__body">
@@ -56,7 +61,7 @@
         </div>
       </section>
 
-      <section class="chapter" aria-labelledby="ch-2">
+      <section class="chapter" aria-labelledby="ch-2" data-reveal="focus">
         <p class="chapter__num">II.</p>
         <h2 class="chapter__title" id="ch-2">The problem is <em>attention,</em> not technology</h2>
         <div class="chapter__body">
@@ -65,7 +70,7 @@
         </div>
       </section>
 
-      <figure class="texture" style="--focus: 30% 45%; --zoom: 1.25; --veil: .3">
+      <figure class="texture" style="--focus: 30% 45%; --zoom: 1.25; --veil: .3" data-reveal="light">
         <img class="texture__img" src="img/texture/calling-of-saint-matthew.webp" width="1800" height="1700" loading="lazy" decoding="async" alt="">
         <blockquote class="texture__words"><p>Nothing took beauty away from us. We were trained out of the <em>patience</em> it asks for.</p></blockquote>
         <figcaption class="texture__caption">Caravaggio, <em>The Calling of Saint Matthew</em>, 1599–1600 (detail)</figcaption>
@@ -73,7 +78,7 @@
 
       <!-- Cause & consequence: the two chapters side by side on a dark band,
            each with a short "ledger" of what was lost -->
-      <section class="spread" aria-label="Cause and consequence">
+      <section class="spread" aria-label="Cause and consequence" data-reveal="split">
         <p class="spread__kicker">Cause &amp; consequence</p>
 
         <div class="spread__cols">
@@ -107,7 +112,7 @@
 
       <!-- The whole painting, uncropped, at a medium size, with a quote split
            into two halves either side of it -->
-      <figure class="framed">
+      <figure class="framed" data-reveal="flank">
         <!-- "Invisible ink" for the second half of the quote: blur the letters,
              then scatter them with fine noise (re-seeded by the script at the end of
              the page, so the grain shimmers). A clear circle follows the mouse. -->
@@ -137,7 +142,7 @@
         <figcaption class="framed__caption">Frederic Leighton, <em>The Painter’s Honeymoon</em>, c. 1864</figcaption>
       </figure>
 
-      <section class="chapter" aria-labelledby="ch-3">
+      <section class="chapter" aria-labelledby="ch-3" data-reveal="settle">
         <p class="chapter__num">III.</p>
         <h2 class="chapter__title" id="ch-3">Atmosphere is the <em>rarest</em> luxury</h2>
         <div class="chapter__body">
@@ -146,7 +151,7 @@
         </div>
       </section>
 
-      <section class="chapter" aria-labelledby="ch-4">
+      <section class="chapter" aria-labelledby="ch-4" data-reveal="rise">
         <p class="chapter__num">IV.</p>
         <h2 class="chapter__title" id="ch-4">Things that last <em>gain meaning</em></h2>
         <div class="chapter__body">
@@ -157,7 +162,7 @@
     </article>
 
     <!-- Coda: the closing chapter, set straight onto a painting -->
-    <section class="texture texture--coda" aria-labelledby="ch-5" style="--focus: 70% 40%; --zoom: 1.2; --veil: .66">
+    <section class="texture texture--coda" aria-labelledby="ch-5" style="--focus: 70% 40%; --zoom: 1.2; --veil: .66" data-reveal="coda">
       <img class="texture__img" src="img/texture/wheat-field.webp" width="1800" height="1431" loading="lazy" decoding="async" alt="">
       <div class="coda">
         <p class="chapter__num">V.</p>
@@ -167,12 +172,43 @@
           <p>So pursuing beauty in hard times isn’t escapism. It isn’t a turning away from the world’s problems. It is how we keep alive the things that make the world worth fixing in the first place.</p>
           <p>Look slowly. Make something that will outlast you. Then look again.</p>
         </div>
-        <p class="coda__sign">pierce <em>(from online)</em></p>
+        <p class="coda__sign">pierce</p>
       </div>
       <p class="texture__caption">Vincent van Gogh, <em>Wheat Field with Cypresses</em>, 1889 (detail)</p>
     </section>
   </main>
   <script>
+    // Scroll animations: each [data-reveal] section gets .is-in while it's on
+    // screen and loses it when it leaves, so it animates in and back out;
+    // css/style.css holds the per-section animation.
+    (() => {
+      if (!document.documentElement.classList.contains("reveal")) return;
+      // "words": split the title into words so they can rise in one after another
+      document.querySelectorAll('[data-reveal="words"] .chapter__title').forEach((title) => {
+        let i = 0;
+        const walker = document.createTreeWalker(title, NodeFilter.SHOW_TEXT);
+        const nodes = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode);
+        nodes.forEach((node) => {
+          const frag = document.createDocumentFragment();
+          node.textContent.split(/(\s+)/).forEach((part) => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.append(part); return; }
+            const word = document.createElement("span");
+            word.className = "word";
+            word.style.setProperty("--i", i++);
+            word.textContent = part;
+            frag.append(word);
+          });
+          node.replaceWith(frag);
+        });
+      });
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => entry.target.classList.toggle("is-in", entry.isIntersecting));
+      }, { threshold: 0.15 });
+      document.querySelectorAll("[data-reveal]").forEach((el) => io.observe(el));
+    })();
+
     // Invisible ink (the Keating quote).
     (() => {
       const ink = document.querySelector(".ink");

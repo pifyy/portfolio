@@ -1,4 +1,4 @@
-# Pierce (from online)
+# Pierce
 
 One page, in order:
 
