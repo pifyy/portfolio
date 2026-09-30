@@ -225,7 +225,7 @@
       // Shimmer: re-seed the filter's noise ~10 times a second so the grain keeps
       // moving. Only while the quote is on screen, and not for reduced motion.
       // (phones don't show the ink at all, so don't run the shimmer there)
-      if (!noises.length || matchMedia("(prefers-reduced-motion: reduce), (max-width: 760px)").matches) return;
+      if (!noises.length || matchMedia("(prefers-reduced-motion: reduce), (max-width: 760px), (hover: none), (pointer: coarse)").matches) return;
       let seed = 1, timer = null;
       const tick = () => { seed = (seed % 50) + 1; noises.forEach((n) => n.setAttribute("seed", seed)); };
       new IntersectionObserver(([entry]) => {

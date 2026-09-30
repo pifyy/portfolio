@@ -566,11 +566,13 @@ body {
   opacity: .75;
 }
 .framed__caption em { text-transform: none; font-family: var(--font-serif); font-size: 1.2em; letter-spacing: 0; }
-@media (max-width: 760px) {
-  /* No invisible ink on phones (it doesn't render reliably there): just the
-     sharp text */
+/* No invisible ink on phones or any touch screen (it doesn't render reliably
+   there, and there's no mouse to reveal it with): just the sharp text */
+@media (max-width: 760px), (hover: none), (pointer: coarse) {
   .ink__veil { display: none; }
   .ink .ink__clear { -webkit-mask-image: none; mask-image: none; }
+}
+@media (max-width: 760px) {
   /* a little more room for the quote either side of the painting */
   .framed { --art-w: 31vw; column-gap: 3.5vw; }
   .framed__words { font-size: .95rem; }
