@@ -856,10 +856,12 @@ body {
   stroke-linejoin: round;
 }
 /* Each building is a button: selecting it swaps today's block for the one
-   that used to stand there, which draws itself in, outline first then detail
-   (each line's --d delay is set in the markup). Lines are targeted as "> *"
-   rather than [pathLength]: Chrome doesn't re-style SVG elements by that
-   camel-case attribute when a class changes. */
+   that used to stand there. The line drawing in both directions is scripted
+   (see the end of index.html), not CSS animation: iOS Safari restarts CSS
+   animations whenever a class changes nearby, which replayed the draw-in when
+   a building was sent back. Lines are targeted as "> *" rather than
+   [pathLength]: Chrome doesn't re-style SVG elements by that camel-case
+   attribute when a class changes. */
 .bldg { cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .bldg .hit { fill: transparent; stroke: none; }
 .bldg__then { opacity: 0; }
@@ -867,9 +869,7 @@ body {
 .bldg__then .fill { fill: transparent; transition: fill .8s ease; }
 .bldg.is-old .bldg__now { opacity: 0; transition: opacity .35s ease; }
 .bldg.is-old .bldg__then { opacity: 1; }
-.bldg.is-old .bldg__then > * { animation: bldg-draw 1.1s cubic-bezier(.55, .1, .25, 1) calc(.15s + var(--d, 0s)) both; }
 .bldg.is-old .bldg__then .fill { fill: var(--canvas); transition-delay: .6s; }
-@keyframes bldg-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 /* going back is scripted (see the end of index.html): the old building
    un-draws detail first, outline last, then today's block rises once */
 .bldg.is-leaving .bldg__then .fill { fill: transparent; transition: fill .3s ease; }
@@ -891,7 +891,6 @@ body {
 @keyframes neon-sign { 0%, 12%, 30% { opacity: .15; } 6%, 20%, 40%, 100% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
   .bldg.is-old .bldg__now, .bldg__then .fill, .bland__art .neon { transition: none; }
-  .bldg.is-old .bldg__then > * { animation: none; stroke-dashoffset: 0; }
   .bldg.is-old .neon { animation: none; }
 }
 .bland__hint {
