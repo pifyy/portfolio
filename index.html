@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pierce (from Online)</title>
+  <meta name="theme-color" content="#050505">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✷</text></svg>">
+  <link rel="preload" href="fonts/Archivo-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/finder.js" defer></script>
+</head>
+<body>
+  <!-- Keywords drift right → left into the search box; each one that arrives
+       flips the wall of paintings to a new set. Keywords & art live in js/finder.js. -->
+  <section class="finder" aria-label="A wall of paintings, searched by keyword">
+    <ul class="finder__grid" role="list"></ul>
+    <div class="finder__shade"></div>
+    <div class="finder__ticker" aria-hidden="true"><div class="finder__track"></div></div>
+    <div class="finder__search">
+      <svg class="finder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>
+      <p class="finder__query" aria-live="polite"></p>
+      <span class="finder__spinner" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <!-- Title plate: a painting mounted on board, with the headline running across it.
+       The part of the headline that crosses the painting turns white. -->
+  <section class="plate" aria-labelledby="plate-title">
+    <div class="plate__mount" aria-hidden="true">
+      <span class="plate__tape plate__tape--left"></span>
+      <span class="plate__tape plate__tape--right"></span>
+    </div>
+    <img class="plate__art" src="img/girl-with-a-pearl-earring.webp" width="1000" height="1184" loading="lazy" decoding="async"
+         alt="Johannes Vermeer, Girl with a Pearl Earring (c. 1665): a girl in a blue and yellow turban glances back over her shoulder, a pearl at her ear.">
+    <h1 class="plate__title" id="plate-title">
+      <span class="plate__line">Beauty Didn’t Die, You Stopped Looking</span>
+    </h1>
+    <p class="plate__title plate__title--light" aria-hidden="true">
+      <span class="plate__line">Beauty Didn’t Die, You Stopped Looking</span>
+    </p>
+  </section>
+
+  <main>
+    <!-- The essay: numbered chapters on canvas, broken up by full-bleed paintings
+         with a line set over them. Each .texture sets --focus (where to look),
+         --zoom (how close, so the brushwork shows) and --veil (how much to darken). -->
+    <article class="essay" aria-labelledby="plate-title">
+
+      <section class="chapter" aria-labelledby="ch-1">
+        <p class="chapter__num">I.</p>
+        <h2 class="chapter__title" id="ch-1">Access is not <em>understanding</em></h2>
+        <div class="chapter__body">
+          <p>We have never been able to see so much. Every cathedral, every runway, every gallery wall on earth is a thumb’s width away. I can look at the ceiling of the Sistine Chapel while I wait for my bodega order.</p>
+          <p>But a picture of a thing is not the thing. A photograph flattens a building into a façade; it can’t give you the way afternoon light moves across the stone, or the hush when you step in off the street. A handmade coat looks like any other coat on a screen. You only understand it when you wear it, when you feel the weight of the cloth and the seam that sits exactly where your shoulder bends. Some things only reveal themselves in person, and only over time. We have gained access. We haven’t necessarily gained understanding.</p>
+        </div>
+      </section>
+
+      <section class="chapter" aria-labelledby="ch-2">
+        <p class="chapter__num">II.</p>
+        <h2 class="chapter__title" id="ch-2">The problem is <em>attention,</em> not technology</h2>
+        <div class="chapter__body">
+          <p>It would be easy to blame the phone. I don’t. The internet has put more of the world’s culture into more hands than any library ever could. A kid in a small town can fall in love with Vermeer years before they ever stand in front of one.</p>
+          <p>What has changed is the tempo. Almost everything around us now rewards speed: the fast reply, the instant reaction, the next thing. Beauty tends to reward the opposite. It asks you to stay, to come back, to look again tomorrow and notice what you missed today.</p>
+        </div>
+      </section>
+
+      <figure class="texture" style="--focus: 30% 45%; --zoom: 1.25; --veil: .3">
+        <img class="texture__img" src="img/texture/calling-of-saint-matthew.webp" width="1800" height="1700" loading="lazy" decoding="async" alt="">
+        <blockquote class="texture__words"><p>Nothing took beauty away from us. We were trained out of the <em>patience</em> it asks for.</p></blockquote>
+        <figcaption class="texture__caption">Caravaggio, <em>The Calling of Saint Matthew</em>, 1599–1600 (detail)</figcaption>
+      </figure>
+
+      <!-- Cause & consequence: the two chapters side by side on a dark band,
+           each with a short "ledger" of what was lost -->
+      <section class="spread" aria-label="Cause and consequence">
+        <p class="spread__kicker">Cause &amp; consequence</p>
+
+        <div class="spread__cols">
+          <div class="spread__col">
+            <p class="spread__label">The cause</p>
+            <h3 class="spread__head">Images replaced <em>experience</em></h3>
+            <p>The internet put the world’s art in everyone’s pocket, and that was a real gift. But we began meeting it mostly as pictures, until the picture stopped being a preview and became the substitute. And beauty can’t survive the trip through a screen.</p>
+            <p class="spread__ledger-title">What a screen can’t carry</p>
+            <ul class="spread__ledger" role="list">
+              <li>Light shifting across stone as you walk through a room</li>
+              <li>The hand and the intention behind the surface</li>
+              <li>What you only learn by coming back</li>
+            </ul>
+            <p class="spread__verdict">We gained the ability to see everything, and lost the ability to know anything <em>well.</em></p>
+          </div>
+
+          <div class="spread__col">
+            <p class="spread__label">The consequence</p>
+            <h3 class="spread__head">We stopped valuing what <em>takes time</em></h3>
+            <p>Once we got used to taking in beauty in seconds, we started expecting it to be made in seconds too. Trends speed up, objects are built to be replaced, and newness passes for value.</p>
+            <p class="spread__ledger-title">What goes with it</p>
+            <ul class="spread__ledger" role="list">
+              <li>Years spent mastering a single material</li>
+              <li>Techniques handed down through generations</li>
+              <li>Objects that grow more meaningful with age and use</li>
+            </ul>
+            <p class="spread__verdict">When a craft disappears, we lose more than a technique. We lose a line back to the people who came <em>before us.</em></p>
+          </div>
+        </div>
+      </section>
+
+      <figure class="texture" style="--focus: 50% 15%; --zoom: 1.05; --veil: .42">
+        <img class="texture__img" src="img/texture/painters-honeymoon.webp" width="1472" height="1600" loading="lazy" decoding="async" alt="">
+        <blockquote class="texture__words"><p>A society needs more than bread and bricks. It needs a picture of <em>what life could be.</em></p></blockquote>
+        <figcaption class="texture__caption">Frederic Leighton, <em>The Painter’s Honeymoon</em>, c. 1864 (detail)</figcaption>
+      </figure>
+
+      <section class="chapter" aria-labelledby="ch-3">
+        <p class="chapter__num">III.</p>
+        <h2 class="chapter__title" id="ch-3">Atmosphere is the <em>rarest</em> luxury</h2>
+        <div class="chapter__body">
+          <p>Think of the places you remember. Not the most expensive ones. A small hotel where the light, the linen, the smell of the hallway and the sound of the door all seemed to agree with each other. A restaurant where the plates, the music and the pace of the evening belonged to one idea. A garden that felt like it had its own weather.</p>
+          <p>Those places are complete worlds. Everything in them fits. And in a world being steadily standardized, with the same café, the same airport and the same grey-beige apartment on every continent, that kind of coherence is getting very hard to find.</p>
+        </div>
+      </section>
+
+      <section class="chapter" aria-labelledby="ch-4">
+        <p class="chapter__num">IV.</p>
+        <h2 class="chapter__title" id="ch-4">Things that last <em>gain meaning</em></h2>
+        <div class="chapter__body">
+          <p>A disposable culture slowly loses touch with itself. When nothing is made to last, nothing carries a history, and there is nothing to hand on.</p>
+          <p>Old things work the other way. A worn wooden table. A stair tread hollowed by two hundred years of feet. A jacket that has taken the shape of the person who wore it. These objects become more valuable, not less, because they carry the traces of care and use.</p>
+        </div>
+      </section>
+    </article>
+
+    <!-- Coda: the closing chapter, set straight onto a painting -->
+    <section class="texture texture--coda" aria-labelledby="ch-5" style="--focus: 70% 40%; --zoom: 1.2; --veil: .66">
+      <img class="texture__img" src="img/texture/wheat-field.webp" width="1800" height="1431" loading="lazy" decoding="async" alt="">
+      <div class="coda">
+        <p class="chapter__num">V.</p>
+        <h2 class="coda__title" id="ch-5">Plant gardens you’ll <em>never see</em></h2>
+        <div class="coda__body">
+          <p>There is an old saying that a society grows great when people plant trees whose shade they know they will never sit in. The most serious making is like that. It is a gift to people you will never meet.</p>
+          <p>So pursuing beauty in hard times isn’t escapism. It isn’t a turning away from the world’s problems. It is how we keep alive the things that make the world worth fixing in the first place.</p>
+          <p>Look slowly. Make something that will outlast you. Then look again.</p>
+        </div>
+        <p class="coda__sign">pierce <em>(from online)</em></p>
+      </div>
+      <p class="texture__caption">Vincent van Gogh, <em>Wheat Field with Cypresses</em>, 1889 (detail)</p>
+    </section>
+  </main>
+
+  <footer class="colophon">
+    <p>All paintings are in the public domain, via Wikimedia Commons.</p>
+  </footer>
+</body>
+</html>

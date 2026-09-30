@@ -1,0 +1,610 @@
+/* Self-hosted latin subsets (from Google Fonts): no third-party requests. */
+@font-face {
+  font-family: "Archivo";
+  src: url(../fonts/Archivo-normal.woff2) format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "EB Garamond";
+  src: url(../fonts/EBGaramond-normal.woff2) format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "EB Garamond";
+  src: url(../fonts/EBGaramond-italic.woff2) format("woff2");
+  font-style: italic;
+  font-display: swap;
+}
+/* Stands in for Louize Display on the title plate */
+@font-face {
+  font-family: "Instrument Serif";
+  src: url(../fonts/InstrumentSerif-normal.woff2) format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Serif";
+  src: url(../fonts/InstrumentSerif-italic.woff2) format("woff2");
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --paper: #fafafa;
+  --ink: #2a2722;
+  --canvas: #eae8e1;    /* the essay ground */
+  --brown: #2a2722;     /* ...and their ink */
+  --font-serif: "EB Garamond", "Garamond", serif;
+  --font-sans: "Archivo", "Helvetica Neue", sans-serif;
+  --gutter: clamp(.75rem, 2vw, 1.5rem);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+p { margin: 0; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--paper); color: var(--ink); }
+
+/* ==========================================================================
+   Finder: keywords drift into the search box and the wall of art flips
+   ========================================================================== */
+
+.finder {
+  --line: #2b2b2b;
+  --caption: #8d8d8d;
+  --col-gap: clamp(1rem, 3.5vw, 4rem);
+  --media-h: clamp(9rem, 21vw, 24rem);
+
+  position: relative;
+  height: 100vh;
+  min-height: 34rem;
+  max-height: 64rem;
+  overflow: hidden;
+  background: #050505;
+  isolation: isolate;
+  contain: layout paint;
+}
+
+/* thin vertical rules at the edges, as on a contact sheet */
+.finder::before,
+.finder::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+  z-index: 1;
+}
+.finder::before { left: 1.6vw; }
+.finder::after { right: 1.6vw; }
+
+.finder__grid {
+  list-style: none;
+  margin: 0;
+  padding: clamp(1rem, 3vw, 2.5rem) 9vw 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: var(--col-gap);
+  row-gap: clamp(4rem, 9vh, 7rem);
+  perspective: 1400px;
+}
+
+.finder__card { min-width: 0; }
+.finder__flip {
+  display: grid;
+  gap: 1.1rem;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+.finder__media {
+  height: var(--media-h);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.finder__media img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  background: #111;
+}
+.finder__caption {
+  font-size: clamp(.7rem, 1.05vw, 1rem);
+  color: var(--caption);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Everything under the search line sits in shadow */
+.finder__shade {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom,
+      transparent 0%,
+      transparent calc(var(--line-y, 55%) - 7rem),
+      rgb(0 0 0 / .82) calc(var(--line-y, 55%) - 1.5rem),
+      rgb(0 0 0 / .82) calc(var(--line-y, 55%) + 1.5rem),
+      rgb(0 0 0 / .55) calc(var(--line-y, 55%) + 6rem),
+      rgb(0 0 0 / .55) 100%);
+}
+
+/* Keywords drifting right → left along the search line */
+.finder__ticker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--line-y, 55%);
+  transform: translateY(-50%);
+  z-index: 3;
+  height: 4rem;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* Edge fades as plain overlays: far cheaper than masking a moving layer */
+.finder__ticker::before,
+.finder__ticker::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8%;
+  z-index: 1;
+}
+.finder__ticker::before { left: 0; background: linear-gradient(90deg, #030303, transparent); }
+.finder__ticker::after { right: 0; background: linear-gradient(-90deg, #030303, transparent); }
+.finder__track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  column-gap: clamp(3rem, 7vw, 7rem);  /* read by JS as the space between words */
+  height: 1.3em;
+  font-size: clamp(1.15rem, 2.1vw, 2rem);
+  white-space: nowrap;
+  will-change: transform;
+}
+/* Each word is absolutely placed once, so the track never re-lays out while it moves */
+.finder__word {
+  position: absolute;
+  top: 0;
+  line-height: 1.3;
+  color: #e9e9e9;
+  letter-spacing: -.005em;
+}
+
+/* The search box */
+.finder__search {
+  position: absolute;
+  left: 50%;
+  top: var(--line-y, 55%);
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  width: min(46rem, 88vw);
+  height: clamp(3.2rem, 5.6vw, 4.3rem);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.4rem;
+  /* solid instead of backdrop-filter: a live blur over moving text costs every frame */
+  background: #161616;
+  border: 1px solid rgb(255 255 255 / .28);
+  border-radius: 5px;
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / .6);
+}
+/* Soft dark fades either side of the box, so keywords dissolve into it and
+   re-emerge from it instead of butting up against its edge. */
+.finder__search::before,
+.finder__search::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: clamp(2.5rem, 5vw, 4.5rem);
+  pointer-events: none;
+}
+/* +1px: offsets are measured from the padding box, so plain 100% would sit on
+   top of the border and hide the box's sides. */
+.finder__search::before { right: calc(100% + 1px); background: linear-gradient(-90deg, #030303 25%, transparent); }
+.finder__search::after { left: calc(100% + 1px); background: linear-gradient(90deg, #030303 25%, transparent); }
+.finder__icon { flex: none; width: 1.3rem; height: 1.3rem; color: #d8d8d8; }
+.finder__query {
+  flex: 1;
+  min-width: 0;
+  font-size: clamp(1.15rem, 2.1vw, 2rem);
+  color: #f2f2f2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.finder__query::after {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: -.15em;
+  background: currentColor;
+  opacity: 0;
+}
+.finder.is-typing .finder__query::after { opacity: 1; }
+.finder__spinner {
+  flex: none;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  border: 2px solid #d8d8d8;
+}
+.finder.is-loading .finder__spinner {
+  border-right-color: transparent;
+  animation: finder-spin .7s linear infinite;
+}
+@keyframes finder-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 760px) {
+  .finder { --media-h: 36vw; }
+  .finder__grid { grid-template-columns: repeat(2, 1fr); padding-inline: 8vw; row-gap: 3rem; }
+
+  /* A narrower box leaves room on both sides to watch the keywords drift. */
+  .finder__search {
+    width: 58vw;
+    height: 2.9rem;
+    gap: .6rem;
+    padding: 0 .8rem;
+  }
+  .finder__search::before,
+  .finder__search::after { width: 3.5rem; }
+  .finder__icon { width: 1rem; height: 1rem; }
+  .finder__query { font-size: .95rem; }
+  .finder__spinner { width: 1rem; height: 1rem; }
+  .finder__track { font-size: 1.1rem; }
+}
+
+/* ==========================================================================
+   Title plate: warm paper, a mounted painting, a headline running across it.
+   Everything is sized from the section's height (--h), so the white copy of
+   the headline can be clipped to exactly the painting's box.
+   ========================================================================== */
+
+.plate {
+  --paper: #eae8e1;
+  --ink: #2e2d29;
+  --rule: #d4d1c8;
+  --h: clamp(34rem, 100vh, 62rem);                 /* section height */
+  --art-top: calc(var(--h) * .08);                 /* painting's top edge */
+  /* painting's height: 66% of the section, but never so wide that the
+     headline (which scales with the painting) would overrun the page */
+  --art-h: min(var(--h) * .66, 33vw * 1184 / 1000);
+  --art-w: calc(var(--art-h) * 1000 / 1184);       /* Vermeer's proportions */
+  --line-y: calc(var(--art-top) + var(--art-h) * .5);   /* headline centred on the painting */
+
+  position: relative;
+  height: calc(var(--art-top) * 2 + var(--art-h));  /* even margin above and below the painting */
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* hairline rules at both edges */
+.plate::before,
+.plate::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule);
+}
+/* same positions as the finder's rules, so the lines run on unbroken */
+.plate::before { left: 1.6vw; }
+.plate::after { right: 1.6vw; }
+
+/* the board the painting is mounted on: runs off the bottom of the page */
+.plate__mount {
+  position: absolute;
+  top: calc(var(--h) * .036);
+  bottom: -2rem;
+  left: 50%;
+  width: calc(var(--art-w) * 1.4);
+  transform: translateX(-50%);
+  background: #f1f0eb;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / .03), 0 .4rem 1.6rem rgb(60 50 30 / .07);
+}
+.plate__tape {
+  position: absolute;
+  top: .6%;
+  width: 11%;
+  height: 3.2%;
+  background: linear-gradient(rgb(200 170 120 / .55), rgb(215 190 145 / .45));
+  mix-blend-mode: multiply;
+}
+.plate__tape--left { left: 3%; transform: rotate(-2deg); }
+.plate__tape--right { right: 3%; transform: rotate(1.5deg); }
+
+.plate__art {
+  position: absolute;
+  top: var(--art-top);
+  left: 50%;
+  width: var(--art-w);
+  height: var(--art-h);
+  transform: translateX(-50%);
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / .08);
+}
+
+/* The headline, twice: an ink copy, and a white copy clipped to the painting.
+   The line is centred on the painting, both ways. */
+.plate__title {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  pointer-events: none;
+  font-family: "Instrument Serif", var(--font-serif);
+  font-weight: 400;
+  /* sized from the painting, so the two keep their proportions on any screen,
+     but capped so the one-line headline always fits across the page */
+  font-size: min(var(--art-w) * .22, 7vw);
+  line-height: 1;
+  letter-spacing: -.02em;
+  white-space: nowrap;
+}
+.plate__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--line-y);
+  transform: translateY(-50%);
+  text-align: center;
+}
+.plate__title em { font-style: italic; letter-spacing: -.03em; }
+.plate__title--light {
+  color: #fbf8f1;
+  text-shadow: 0 0 1.5rem rgb(0 0 0 / .25);
+  clip-path: inset(
+    var(--art-top)
+    calc(50% - var(--art-w) / 2)
+    calc(100% - var(--art-top) - var(--art-h))
+  );
+}
+
+
+@media (max-width: 760px) {
+  .plate {
+    --h: clamp(34rem, 88vh, 62rem);
+    --art-top: calc(var(--h) * .1);
+    --art-h: min(var(--h) * .5, 74vw * 1184 / 1000);
+  }
+}
+
+/* ==========================================================================
+   Essay: numbered chapters on canvas, broken up by full-bleed paintings
+   ========================================================================== */
+
+.essay {
+  background: var(--canvas);
+  color: var(--brown);
+}
+.essay ::selection { background: var(--brown); color: var(--canvas); }
+
+.chapter {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: clamp(5rem, 13vh, 9rem) var(--gutter);
+}
+.chapter__num {
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: .7;
+  margin-bottom: 1.4rem;
+}
+.chapter__title {
+  margin: 0 0 2.4rem;
+  font-family: "Instrument Serif", var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 5.4vw, 4.4rem);
+  line-height: 1;
+  letter-spacing: -.02em;
+  text-align: center;
+  text-wrap: balance;
+}
+.chapter__title em,
+.texture__words em,
+.coda__title em { letter-spacing: -.03em; }
+.chapter__body {
+  font-family: var(--font-serif);
+  font-size: clamp(1.12rem, 1.45vw, 1.3rem);
+  line-height: 1.62;
+  text-wrap: pretty;
+}
+.chapter__body > p + p { margin-top: 1.1em; }
+.chapter__body > p:first-child::first-letter {
+  float: left;
+  font-family: "Instrument Serif", var(--font-serif);
+  font-size: 3.7em;
+  line-height: .78;
+  padding: .06em .09em 0 0;
+}
+
+/* Cause & consequence: two chapters side by side, so the essay changes
+   pace instead of repeating the single-column layout */
+.spread {
+  background: var(--canvas);
+  color: var(--brown);
+  padding: clamp(5rem, 13vh, 9rem) clamp(1.25rem, 5vw, 5rem);
+}
+.spread__kicker,
+.spread__label,
+.spread__ledger-title {
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  opacity: .7;
+}
+.spread__kicker { text-align: center; margin-bottom: 2.2rem; }
+.spread__cols {
+  max-width: 64rem;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid rgb(42 39 34 / .25);
+}
+.spread__col {
+  padding: 2.4rem clamp(1.5rem, 4vw, 4rem) 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.1vw, 1.1rem);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+.spread__col + .spread__col { border-left: 1px solid rgb(42 39 34 / .25); }
+.spread__label { font-family: var(--font-sans); margin-bottom: 1rem; }
+.spread__head {
+  margin: 0 0 1.4rem;
+  font-family: "Instrument Serif", var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 2.5vw, 2.3rem);
+  line-height: 1.05;
+  letter-spacing: -.02em;
+}
+.spread__head em { letter-spacing: -.03em; }
+.spread__ledger-title { font-family: var(--font-sans); margin: 2.2rem 0 .4rem; }
+.spread__ledger { list-style: none; margin: 0; padding: 0; }
+.spread__ledger li {
+  padding: .7rem 0;
+  border-bottom: 1px solid rgb(42 39 34 / .18);
+  font-style: italic;
+}
+.spread__verdict {
+  margin-top: 2rem;
+  font-family: "Instrument Serif", var(--font-serif);
+  font-size: clamp(1.3rem, 1.7vw, 1.6rem);
+  line-height: 1.15;
+}
+@media (max-width: 760px) {
+  .spread__cols { grid-template-columns: 1fr; }
+  .spread__col { padding-inline: 0; }
+  .spread__col + .spread__col { border-left: 0; margin-top: 3.5rem; border-top: 1px solid rgb(42 39 34 / .25); }
+}
+
+/* A painting filling the screen, zoomed in far enough that the brushwork shows,
+   with one line set over it. Per painting: --focus, --zoom, --veil. */
+.texture {
+  position: relative;
+  height: 100vh;
+  min-height: 34rem;
+  max-height: 64rem;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #111;
+  color: #fbf8f1;
+  isolation: isolate;
+}
+.texture__img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--focus, 50% 50%);
+  transform: scale(var(--zoom, 1.2));
+  transform-origin: var(--focus, 50% 50%);
+  animation: texture-drift 38s ease-in-out infinite alternate;
+}
+@keyframes texture-drift {
+  to { transform: scale(calc(var(--zoom, 1.2) + .08)) translate3d(-1.5%, -1%, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .texture__img { animation: none; }
+}
+/* darkens the middle most, so the words read without hiding the paint */
+.texture::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%,
+    rgb(10 8 6 / var(--veil, .4)),
+    rgb(10 8 6 / calc(var(--veil, .4) * .45)));
+}
+.texture__words {
+  margin: 0;
+  max-width: min(58rem, 86vw);
+  text-align: center;
+  font-family: "Instrument Serif", var(--font-serif);
+  font-size: clamp(2.6rem, 6.4vw, 6.2rem);
+  line-height: 1.02;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+  text-shadow: 0 .05em 1.8rem rgb(0 0 0 / .45);
+}
+.texture__caption {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: var(--gutter);
+  font-size: .66rem;
+  line-height: 1.5;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-shadow: 0 0 .8rem rgb(0 0 0 / .6);
+  opacity: .88;
+}
+.texture__caption em { text-transform: none; font-family: var(--font-serif); font-size: 1.2em; letter-spacing: 0; }
+
+/* The closing chapter sits straight on its painting */
+.texture--coda { height: auto; max-height: none; min-height: 100vh; }
+.coda {
+  max-width: 40rem;
+  padding: clamp(6rem, 16vh, 10rem) var(--gutter);
+  text-align: center;
+  text-shadow: 0 0 1.6rem rgb(0 0 0 / .5);
+}
+.coda__title {
+  margin: 0 0 2.4rem;
+  font-family: "Instrument Serif", var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(3rem, 7vw, 6.4rem);
+  line-height: 1;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+}
+.coda__body {
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 1.5vw, 1.35rem);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+.coda__body p + p { margin-top: 1.1em; }
+.coda__body p:last-child { margin-top: 1.8em; font-style: italic; }
+.coda__sign { margin-top: 2.6rem; font-family: var(--font-serif); font-size: 1.2rem; }
+
+.colophon {
+  padding: 1.4rem var(--gutter);
+  background: var(--brown);
+  color: var(--canvas);
+  font-size: .66rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: .9;
+}
+
+@media (max-width: 760px) {
+  .texture { height: 88vh; }
+  .texture__caption { font-size: .6rem; }
+}
