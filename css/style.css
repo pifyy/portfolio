@@ -40,6 +40,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 p { margin: 0; }
 
 /* Nothing (e.g. an element mid-animation) may make the page wider than the
@@ -254,6 +255,56 @@ body {
   animation: finder-spin .7s linear infinite;
 }
 @keyframes finder-spin { to { transform: rotate(360deg); } }
+
+/* Scroll cue at the foot of the opening screen */
+.finder__cue {
+  position: absolute;
+  left: 50%;
+  bottom: .6rem;
+  z-index: 4;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  row-gap: .8rem;
+  padding: 2.6rem 5.5rem .6rem;
+  color: #f2f2f2;
+  /* a soft dark pool behind it, so it reads over the paintings */
+  background: radial-gradient(closest-side, #050505 45%, rgb(5 5 5 / .85) 70%, transparent);
+  text-decoration: none;
+  transition: opacity .5s ease, transform .5s ease;
+  animation: cue-in 1s ease 1.2s both;
+}
+.finder__cue-label {
+  font-size: .78rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+.finder__cue-line {
+  position: relative;
+  width: 1px;
+  height: 3.2rem;
+  background: rgb(255 255 255 / .3);
+  overflow: hidden;
+}
+.finder__cue-line::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -40%;
+  width: 1px;
+  height: 40%;
+  background: #fff;
+  animation: cue-drop 1.8s cubic-bezier(.6, 0, .4, 1) infinite;
+}
+.finder__cue:hover { color: #fff; }
+.finder__cue:focus-visible { outline: 1px solid #f2f2f2; outline-offset: 4px; }
+.finder__cue.is-hidden { opacity: 0; transform: translate(-50%, .6rem); pointer-events: none; }
+@keyframes cue-in { from { opacity: 0; } }
+@keyframes cue-drop { to { top: 100%; } }
+@media (prefers-reduced-motion: reduce) {
+  .finder__cue { animation: none; }
+  .finder__cue-line::after { animation: none; top: 30%; }
+}
 
 @media (max-width: 760px) {
   .finder { --media-h: 36vw; }
@@ -809,9 +860,8 @@ body {
    (each line's --d delay is set in the markup). Lines are targeted as "> *"
    rather than [pathLength]: Chrome doesn't re-style SVG elements by that
    camel-case attribute when a class changes. */
-.bldg { cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; }
+.bldg { cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .bldg .hit { fill: transparent; stroke: none; }
-.bldg__now { transform-box: fill-box; transform-origin: bottom; }
 .bldg__then { opacity: 0; }
 .bldg__then > * { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .bldg__then .fill { fill: transparent; transition: fill .8s ease; }
@@ -824,15 +874,9 @@ body {
    un-draws detail first, outline last, then today's block rises once */
 .bldg.is-leaving .bldg__then .fill { fill: transparent; transition: fill .3s ease; }
 .bldg.is-leaving .neon { opacity: 0; animation: none; transition: opacity .2s ease; }
-/* hover / focus hint: a faint dashed outline, so nothing about the building
-   itself changes under the pointer */
-.bldg .hit { transition: stroke-opacity .25s ease; stroke-opacity: 0; }
+/* no hover effect (touch screens keep :hover stuck on after a tap); keyboard
+   focus still gets a faint dashed outline so you can see where you are */
 .bldg:focus-visible .hit { stroke: currentColor; stroke-width: .6; stroke-dasharray: 3 3; stroke-opacity: .35; }
-/* only real pointers get the hover hint: touch screens keep :hover stuck on
-   after a tap, which read as the building firing twice */
-@media (hover: hover) {
-  .bldg:hover .hit { stroke: currentColor; stroke-width: .6; stroke-dasharray: 3 3; stroke-opacity: .35; }
-}
 .bland__art .neon {
   font-family: "Instrument Serif", var(--font-serif);
   font-style: italic;

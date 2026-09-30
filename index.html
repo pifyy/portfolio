@@ -29,11 +29,16 @@
       <p class="finder__query" aria-live="polite"></p>
       <span class="finder__spinner" aria-hidden="true"></span>
     </div>
+    <!-- Scroll cue: fades out once the page is scrolled -->
+    <a class="finder__cue" href="#start">
+      <span class="finder__cue-label">Scroll</span>
+      <span class="finder__cue-line" aria-hidden="true"></span>
+    </a>
   </section>
 
   <!-- Title plate: a painting with the headline running across it.
        The part of the headline that crosses the painting turns white. -->
-  <section class="plate" aria-labelledby="plate-title">
+  <section class="plate" id="start" aria-labelledby="plate-title">
     <img class="plate__art" src="img/girl-with-a-pearl-earring.webp" width="1000" height="1184" loading="lazy" decoding="async"
          alt="Johannes Vermeer, Girl with a Pearl Earring (c. 1665): a girl in a blue and yellow turban glances back over her shoulder, a pearl at her ear.">
     <h1 class="plate__title" id="plate-title">
@@ -207,6 +212,15 @@
     </section>
   </main>
   <script>
+    // Hide the scroll cue once the reader has started scrolling.
+    (() => {
+      const cue = document.querySelector(".finder__cue");
+      if (!cue) return;
+      const check = () => cue.classList.toggle("is-hidden", scrollY > 40);
+      addEventListener("scroll", check, { passive: true });
+      check();
+    })();
+
     // Scroll animations: each [data-reveal] section gets .is-in while it's on
     // screen and loses it when it leaves, so it animates in and back out;
     // css/style.css holds the per-section animation.
@@ -273,8 +287,9 @@
         b.classList.remove("is-old", "is-leaving");
         out.forEach((a) => a.cancel());
         await b.querySelector(".bldg__now").animate(
-          [{ opacity: 0, transform: "scaleY(.15)" }, { opacity: 1, transform: "none" }],
-          { duration: 650, easing: "cubic-bezier(.2, .8, .2, 1)" }
+          // a plain rise (no transform-origin: iOS Safari misplaces it on SVG groups)
+          [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "translateY(0)" }],
+          { duration: 600, easing: "cubic-bezier(.2, .8, .2, 1)" }
         ).finished;
         b.busy = false;
       };
