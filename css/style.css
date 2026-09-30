@@ -538,8 +538,10 @@ body {
   -webkit-mask-image: radial-gradient(circle var(--ink-r) at var(--ink-x) var(--ink-y), transparent 45%, #000 100%);
           mask-image: radial-gradient(circle var(--ink-r) at var(--ink-x) var(--ink-y), transparent 45%, #000 100%);
 }
-.ink:focus-visible .ink__clear { -webkit-mask-image: none; mask-image: none; }
-.ink:focus-visible .ink__veil { opacity: 0; }
+.ink:focus-visible .ink__clear,
+.ink.is-open .ink__clear { -webkit-mask-image: none; mask-image: none; }
+.ink:focus-visible .ink__veil,
+.ink.is-open .ink__veil { opacity: 0; }
 .framed__filters { position: absolute; width: 0; height: 0; overflow: hidden; }
 .framed__words--left { grid-column: 1; justify-self: end; text-align: right; }
 .framed__words--right { grid-column: 3; justify-self: start; text-align: left; }
@@ -563,6 +565,14 @@ body {
   opacity: .75;
 }
 .framed__caption em { text-transform: none; font-family: var(--font-serif); font-size: 1.2em; letter-spacing: 0; }
+@media (max-width: 760px) {
+  /* smaller text needs a gentler filter, or the words smear into a smudge */
+  .ink__veil { filter: url(#ink-grain-sm); }
+  /* a little more room for the quote either side of the painting */
+  .framed { --art-w: 31vw; column-gap: 3.5vw; }
+  .framed__words { font-size: .95rem; }
+  .framed__caption { grid-column: 1 / -1; text-align: center; }
+}
 
 /* A painting filling the screen, zoomed in far enough that the brushwork shows,
    with one line set over it. Per painting: --focus, --zoom, --veil. */

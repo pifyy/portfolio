@@ -118,6 +118,12 @@
             <feTurbulence class="ink-noise" type="fractalNoise" baseFrequency="2.2" numOctaves="2" seed="1" result="noise"/>
             <feDisplacementMap in="soft" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G"/>
           </filter>
+          <!-- same effect, scaled down for the smaller text on phones -->
+          <filter id="ink-grain-sm" x="-5%" y="-10%" width="110%" height="120%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.55" result="soft"/>
+            <feTurbulence class="ink-noise" type="fractalNoise" baseFrequency="2.6" numOctaves="2" seed="1" result="noise"/>
+            <feDisplacementMap in="soft" in2="noise" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
         </svg>
         <blockquote class="framed__quote">
           <div class="framed__words framed__words--left">
@@ -208,24 +214,27 @@
     // Invisible ink (the Keating quote).
     (() => {
       const ink = document.querySelector(".ink");
-      const noise = document.querySelector(".ink-noise");
+      const noises = document.querySelectorAll(".ink-noise");
       if (!ink) return;
 
-      // A clear circle follows the pointer; it grows in on enter, shrinks on leave.
+      // Mouse: a clear circle follows the pointer; it grows in on enter, shrinks on leave.
       const place = (e) => {
         const box = ink.getBoundingClientRect();
         ink.style.setProperty("--ink-x", `${e.clientX - box.left}px`);
         ink.style.setProperty("--ink-y", `${e.clientY - box.top}px`);
       };
-      ink.addEventListener("pointerenter", (e) => { place(e); ink.classList.add("is-revealing"); });
-      ink.addEventListener("pointermove", place);
-      ink.addEventListener("pointerleave", () => ink.classList.remove("is-revealing"));
+      const isMouse = (e) => e.pointerType === "mouse" || e.pointerType === "pen";
+      ink.addEventListener("pointerenter", (e) => { if (!isMouse(e)) return; place(e); ink.classList.add("is-revealing"); });
+      ink.addEventListener("pointermove", (e) => { if (isMouse(e)) place(e); });
+      ink.addEventListener("pointerleave", (e) => { if (isMouse(e)) ink.classList.remove("is-revealing"); });
+      // Touch has no hover: a tap clears the whole sentence, another tap brings the ink back.
+      ink.addEventListener("pointerup", (e) => { if (e.pointerType === "touch") ink.classList.toggle("is-open"); });
 
       // Shimmer: re-seed the filter's noise ~10 times a second so the grain keeps
       // moving. Only while the quote is on screen, and not for reduced motion.
-      if (!noise || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (!noises.length || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       let seed = 1, timer = null;
-      const tick = () => noise.setAttribute("seed", (seed = (seed % 50) + 1));
+      const tick = () => { seed = (seed % 50) + 1; noises.forEach((n) => n.setAttribute("seed", seed)); };
       new IntersectionObserver(([entry]) => {
         clearInterval(timer);
         timer = entry.isIntersecting ? setInterval(tick, 100) : null;
