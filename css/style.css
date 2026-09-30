@@ -42,6 +42,9 @@
 *, *::before, *::after { box-sizing: border-box; }
 p { margin: 0; }
 
+/* Nothing (e.g. an element mid-animation) may make the page wider than the
+   screen; on phones that zooms the whole page out */
+html, body { overflow-x: clip; }
 body {
   margin: 0;
   background: var(--ink);
@@ -361,7 +364,7 @@ body {
   .plate {
     --h: clamp(34rem, 88vh, 62rem);
     --art-top: calc(var(--h) * .1);
-    --art-h: min(var(--h) * .5, 74vw * 1184 / 1000);
+    --art-h: min(var(--h) * .42, 56vw * 1184 / 1000);
   }
 }
 
@@ -542,6 +545,8 @@ body {
 .ink.is-open .ink__clear { -webkit-mask-image: none; mask-image: none; }
 .ink:focus-visible .ink__veil,
 .ink.is-open .ink__veil { opacity: 0; }
+@keyframes ink-speckle { to { background-position: 40px 23px; } }
+@media (prefers-reduced-motion: reduce) { .ink__veil { animation: none; } }
 .framed__filters { position: absolute; width: 0; height: 0; overflow: hidden; }
 .framed__words--left { grid-column: 1; justify-self: end; text-align: right; }
 .framed__words--right { grid-column: 3; justify-self: start; text-align: left; }
@@ -566,8 +571,17 @@ body {
 }
 .framed__caption em { text-transform: none; font-family: var(--font-serif); font-size: 1.2em; letter-spacing: 0; }
 @media (max-width: 760px) {
-  /* smaller text needs a gentler filter, or the words smear into a smudge */
-  .ink__veil { filter: url(#ink-grain-sm); }
+  /* iPhone Safari renders SVG filters on text poorly (soft, flickering), so
+     on phones the ink is the letters filled with a moving speckle texture,
+     lightly blurred, instead */
+  .ink__veil {
+    filter: blur(.45px);
+    color: transparent;
+    background: url(../img/ink-grain.png) 0 0 / 40px 40px;
+    -webkit-background-clip: text;
+            background-clip: text;
+    animation: ink-speckle .6s steps(6) infinite;
+  }
   /* a little more room for the quote either side of the painting */
   .framed { --art-w: 31vw; column-gap: 3.5vw; }
   .framed__words { font-size: .95rem; }
@@ -828,4 +842,9 @@ body {
   opacity: 1;
   transform: none;
   filter: none;
+}
+
+@media (max-width: 760px) {
+  .reveal [data-reveal="split"] .spread__col:first-child,
+  .reveal [data-reveal="split"] .spread__col + .spread__col { transform: translateY(2rem); }
 }

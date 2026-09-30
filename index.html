@@ -118,12 +118,6 @@
             <feTurbulence class="ink-noise" type="fractalNoise" baseFrequency="2.2" numOctaves="2" seed="1" result="noise"/>
             <feDisplacementMap in="soft" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G"/>
           </filter>
-          <!-- same effect, scaled down for the smaller text on phones -->
-          <filter id="ink-grain-sm" x="-5%" y="-10%" width="110%" height="120%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.55" result="soft"/>
-            <feTurbulence class="ink-noise" type="fractalNoise" baseFrequency="2.6" numOctaves="2" seed="1" result="noise"/>
-            <feDisplacementMap in="soft" in2="noise" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
-          </filter>
         </svg>
         <blockquote class="framed__quote">
           <div class="framed__words framed__words--left">
