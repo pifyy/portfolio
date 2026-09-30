@@ -498,6 +498,83 @@ body {
   .spread__col + .spread__col { border-left: 0; margin-top: 3.5rem; border-top: 1px solid rgb(42 39 34 / .25); }
 }
 
+/* A painting shown whole (no crop) at a medium size, with a quote split
+   into two halves either side of it, at every screen size */
+.framed {
+  --art-w: min(34rem, 36vw, 70vh * 1432 / 1562);
+  margin: 0;
+  padding: clamp(4rem, 11vh, 8rem) var(--gutter);
+  display: grid;
+  grid-template-columns: 1fr var(--art-w) 1fr;
+  column-gap: clamp(.75rem, 4vw, 4rem);
+  align-items: center;
+  background: var(--canvas);
+  color: var(--brown);
+}
+.framed__quote { display: contents; margin: 0; }   /* its two halves sit in the grid */
+.framed__art { grid-column: 2; grid-row: 1; }
+.framed__art img { display: block; width: 100%; height: auto; }
+.framed__words {
+  grid-row: 1;
+  max-width: 17rem;
+  font-family: "Instrument Serif", var(--font-serif);
+  font-size: clamp(.8rem, 2vw, 2rem);
+  line-height: 1.08;
+  letter-spacing: -.01em;
+  text-wrap: balance;
+}
+.framed__words em { letter-spacing: -.02em; }
+/* Invisible ink: a shimmering, blurred copy sits over a sharp one. A soft
+   circle follows the pointer (position set by the script at the end of
+   index.html): inside it the sharp copy shows, outside it the blur. Keyboard
+   focus clears the whole sentence. */
+@property --ink-r { syntax: "<length>"; inherits: true; initial-value: 0px; }
+.ink {
+  --ink-x: 50%;
+  --ink-y: 50%;
+  --ink-r: 0px;
+  display: grid;
+  outline: none;
+  cursor: default;
+  transition: --ink-r .35s ease;
+}
+.ink.is-revealing { --ink-r: 4.5rem; }
+.ink > span { grid-area: 1 / 1; transition: opacity .5s ease; }
+.ink__clear {
+  -webkit-mask-image: radial-gradient(circle var(--ink-r) at var(--ink-x) var(--ink-y), #000 45%, transparent 100%);
+          mask-image: radial-gradient(circle var(--ink-r) at var(--ink-x) var(--ink-y), #000 45%, transparent 100%);
+}
+.ink__veil {
+  filter: url(#ink-grain);
+  -webkit-mask-image: radial-gradient(circle var(--ink-r) at var(--ink-x) var(--ink-y), transparent 45%, #000 100%);
+          mask-image: radial-gradient(circle var(--ink-r) at var(--ink-x) var(--ink-y), transparent 45%, #000 100%);
+}
+.ink:focus-visible .ink__clear { -webkit-mask-image: none; mask-image: none; }
+.ink:focus-visible .ink__veil { opacity: 0; }
+.framed__filters { position: absolute; width: 0; height: 0; overflow: hidden; }
+.framed__words--left { grid-column: 1; justify-self: end; text-align: right; }
+.framed__words--right { grid-column: 3; justify-self: start; text-align: left; }
+.framed__cite {
+  margin-top: 1.1em;
+  font-family: var(--font-sans);
+  font-size: clamp(.55rem, .8vw, .72rem);
+  line-height: 1.5;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  opacity: .75;
+}
+.framed__cite cite { font-family: var(--font-serif); font-size: 1.2em; text-transform: none; letter-spacing: 0; }
+.framed__caption {
+  grid-column: 2;
+  margin-top: 1rem;
+  font-size: .66rem;
+  line-height: 1.5;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  opacity: .75;
+}
+.framed__caption em { text-transform: none; font-family: var(--font-serif); font-size: 1.2em; letter-spacing: 0; }
+
 /* A painting filling the screen, zoomed in far enough that the brushwork shows,
    with one line set over it. Per painting: --focus, --zoom, --veil. */
 .texture {

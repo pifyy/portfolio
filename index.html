@@ -105,10 +105,36 @@
         </div>
       </section>
 
-      <figure class="texture" style="--focus: 50% 15%; --zoom: 1.05; --veil: .42">
-        <img class="texture__img" src="img/texture/painters-honeymoon.webp" width="1472" height="1600" loading="lazy" decoding="async" alt="">
-        <blockquote class="texture__words"><p>A society needs more than bread and bricks. It needs a picture of <em>what life could be.</em></p></blockquote>
-        <figcaption class="texture__caption">Frederic Leighton, <em>The Painter’s Honeymoon</em>, c. 1864 (detail)</figcaption>
+      <!-- The whole painting, uncropped, at a medium size, with a quote split
+           into two halves either side of it -->
+      <figure class="framed">
+        <!-- "Invisible ink" for the second half of the quote: blur the letters,
+             then scatter them with fine noise (re-seeded by the script at the end of
+             the page, so the grain shimmers). A clear circle follows the mouse. -->
+        <svg class="framed__filters" width="0" height="0" aria-hidden="true" focusable="false">
+          <filter id="ink-grain" x="-5%" y="-10%" width="110%" height="120%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.4" result="soft"/>
+            <feTurbulence class="ink-noise" type="fractalNoise" baseFrequency="2.2" numOctaves="2" seed="1" result="noise"/>
+            <feDisplacementMap in="soft" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+        </svg>
+        <blockquote class="framed__quote">
+          <div class="framed__words framed__words--left">
+            <p>Medicine, law, business, engineering, these are noble pursuits and necessary to sustain life...</p>
+          </div>
+          <div class="framed__words framed__words--right">
+            <p class="ink" tabindex="0">
+              <span class="ink__clear">But poetry, beauty, romance, love, <em>these are what we stay alive for.</em></span>
+              <span class="ink__veil" aria-hidden="true">But poetry, beauty, romance, love, <em>these are what we stay alive for.</em></span>
+            </p>
+            <p class="framed__cite">— John Keating, <cite>Dead Poets Society</cite> (1989)</p>
+          </div>
+        </blockquote>
+        <div class="framed__art">
+          <img src="img/texture/painters-honeymoon.webp" width="1432" height="1562" loading="lazy" decoding="async"
+               alt="Frederic Leighton, The Painter's Honeymoon: a painter sketches on a board while his new wife leans against him, holding his hand, her gold silk dress spilling across the floor.">
+        </div>
+        <figcaption class="framed__caption">Frederic Leighton, <em>The Painter’s Honeymoon</em>, c. 1864</figcaption>
       </figure>
 
       <section class="chapter" aria-labelledby="ch-3">
@@ -146,6 +172,34 @@
       <p class="texture__caption">Vincent van Gogh, <em>Wheat Field with Cypresses</em>, 1889 (detail)</p>
     </section>
   </main>
+  <script>
+    // Invisible ink (the Keating quote).
+    (() => {
+      const ink = document.querySelector(".ink");
+      const noise = document.querySelector(".ink-noise");
+      if (!ink) return;
+
+      // A clear circle follows the pointer; it grows in on enter, shrinks on leave.
+      const place = (e) => {
+        const box = ink.getBoundingClientRect();
+        ink.style.setProperty("--ink-x", `${e.clientX - box.left}px`);
+        ink.style.setProperty("--ink-y", `${e.clientY - box.top}px`);
+      };
+      ink.addEventListener("pointerenter", (e) => { place(e); ink.classList.add("is-revealing"); });
+      ink.addEventListener("pointermove", place);
+      ink.addEventListener("pointerleave", () => ink.classList.remove("is-revealing"));
+
+      // Shimmer: re-seed the filter's noise ~10 times a second so the grain keeps
+      // moving. Only while the quote is on screen, and not for reduced motion.
+      if (!noise || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      let seed = 1, timer = null;
+      const tick = () => noise.setAttribute("seed", (seed = (seed % 50) + 1));
+      new IntersectionObserver(([entry]) => {
+        clearInterval(timer);
+        timer = entry.isIntersecting ? setInterval(tick, 100) : null;
+      }).observe(ink);
+    })();
+  </script>
 
   <footer class="colophon">
     <p>All paintings are in the public domain, via Wikimedia Commons.</p>
