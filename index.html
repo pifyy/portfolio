@@ -80,7 +80,7 @@
           <path d="M150 130 V134" class="k"/><rect x="134" y="134" width="32" height="15" class="k fill"/><path d="M139 139 H161 M141 144 H159" class="g"/>
         </svg>
         <div class="chapter__body">
-          <p>We have optimized beauty out of our lives. In 1963, New York tore down the original Penn Station, a monumental granite-and-glass hall, and replaced it with the functional structure commuters know today. No one has the sack to ante up and create something that might be laughed at, criticized, or simply appreciated by only a few people. It is safer to make something useful, efficient, and broadly acceptable than to make something beautiful and risk it being misunderstood. Rarely are people bold enough to create something with enough character to divide opinion. So we get the same functional apartments, the same grey floors, the same white walls, the same buildings designed to offend no one. We have traded the possibility of beauty for the certainty of utility.</p>
+          <p>We have optimized beauty out of our lives. In 1963, New York tore down the original Penn Station, a monumental granite-and-glass hall, and replaced it with the functional structure commuters know today. Nowadays one has the sack to ante up and create something that might be laughed at, criticized, or simply appreciated by only a few people. It is safer to make something useful, efficient, and broadly acceptable than to make something beautiful and risk it being misunderstood. Rarely are people bold enough to create something with enough character to divide opinion. So we get the same functional apartments, the same grey floors, the same white walls, the same buildings designed to offend no one. We have traded the possibility of beauty for the certainty of utility.</p>
         </div>
       </section>
 
@@ -237,39 +237,57 @@
     })();
 
     // "America used to have character": each building toggles between today's
-    // block and what used to stand there. Restoring draws the old building in;
-    // un-restoring draws it back out, then the grey block rises into place.
+    // block and what used to stand there. Restoring draws the old building in
+    // (CSS); going back is one scripted sequence: the old building un-draws,
+    // detail first and outline last, then today's block rises. Clicks during an
+    // animation are ignored so it can't fire twice.
     (() => {
       const blds = [...document.querySelectorAll(".bldg")];
       const all = document.querySelector(".bland__all");
       if (!blds.length) return;
       const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const set = (b, old) => {
-        if (b.classList.contains("is-old") === old && !b.classList.contains("is-leaving")) return;
-        clearTimeout(b._t);
-        b.classList.remove("is-leaving", "is-returning");
-        b.setAttribute("aria-pressed", old);
-        if (old || reduce) { b.classList.toggle("is-old", old); return sync(); }
+      const isOld = (b) => b.getAttribute("aria-pressed") === "true";
+      const sync = () => {
+        const on = blds.every(isOld);
+        all.setAttribute("aria-pressed", on);
+        all.textContent = on ? "bring back today\u2019s street" : "restore the whole street";
+      };
+      const restore = (b) => {
+        b.setAttribute("aria-pressed", "true");
+        b.classList.add("is-old");
+      };
+      const unrestore = async (b) => {
+        b.setAttribute("aria-pressed", "false");
+        if (reduce) { b.classList.remove("is-old"); return; }
+        b.busy = true;
         b.classList.add("is-leaving");
-        b._t = setTimeout(() => {
-          b.classList.remove("is-old", "is-leaving");
-          b.classList.add("is-returning");
-          b._t = setTimeout(() => b.classList.remove("is-returning"), 900);
-        }, 750);
+        const lines = [...b.querySelector(".bldg__then").children].filter((el) => el.tagName !== "text");
+        const n = lines.length;
+        const out = lines.map((el, i) => el.animate(
+          [{ strokeDashoffset: getComputedStyle(el).strokeDashoffset }, { strokeDashoffset: -1 }],
+          { duration: 520, delay: (n - 1 - i) * (320 / n), easing: "cubic-bezier(.45, 0, .55, 1)", fill: "forwards" }
+        ));
+        await Promise.all(out.map((a) => a.finished));
+        b.classList.remove("is-old", "is-leaving");
+        out.forEach((a) => a.cancel());
+        await b.querySelector(".bldg__now").animate(
+          [{ opacity: 0, transform: "scaleY(.15)" }, { opacity: 1, transform: "none" }],
+          { duration: 650, easing: "cubic-bezier(.2, .8, .2, 1)" }
+        ).finished;
+        b.busy = false;
+      };
+      const set = (b, old) => {
+        if (b.busy || isOld(b) === old) return;
+        old ? restore(b) : unrestore(b);
         sync();
       };
-      const sync = () => {
-        const on = blds.every((b) => b.getAttribute("aria-pressed") === "true");
-        all.setAttribute("aria-pressed", on);
-        all.textContent = on ? "bring back today’s street" : "restore the whole street";
-      };
       blds.forEach((b) => {
-        const toggle = () => set(b, b.getAttribute("aria-pressed") !== "true");
+        const toggle = () => set(b, !isOld(b));
         b.addEventListener("click", toggle);
         b.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
       });
       all.addEventListener("click", () => {
-        const old = all.getAttribute("aria-pressed") !== "true";
+        const old = !blds.every(isOld);
         blds.forEach((b, i) => setTimeout(() => set(b, old), reduce ? 0 : i * 140));
       });
     })();
