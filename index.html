@@ -221,12 +221,11 @@
       ink.addEventListener("pointerenter", (e) => { if (!isMouse(e)) return; place(e); ink.classList.add("is-revealing"); });
       ink.addEventListener("pointermove", (e) => { if (isMouse(e)) place(e); });
       ink.addEventListener("pointerleave", (e) => { if (isMouse(e)) ink.classList.remove("is-revealing"); });
-      // Touch has no hover: a tap clears the whole sentence, another tap brings the ink back.
-      ink.addEventListener("pointerup", (e) => { if (e.pointerType === "touch") ink.classList.toggle("is-open"); });
 
       // Shimmer: re-seed the filter's noise ~10 times a second so the grain keeps
       // moving. Only while the quote is on screen, and not for reduced motion.
-      if (!noises.length || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      // (phones don't show the ink at all, so don't run the shimmer there)
+      if (!noises.length || matchMedia("(prefers-reduced-motion: reduce), (max-width: 760px)").matches) return;
       let seed = 1, timer = null;
       const tick = () => { seed = (seed % 50) + 1; noises.forEach((n) => n.setAttribute("seed", seed)); };
       new IntersectionObserver(([entry]) => {
