@@ -856,18 +856,14 @@ body {
   stroke-linejoin: round;
 }
 /* Each building is a button: selecting it swaps today's block for the one
-   that used to stand there. The line drawing in both directions is scripted
-   (see the end of index.html), not CSS animation: iOS Safari restarts CSS
-   animations whenever a class changes nearby, which replayed the draw-in when
-   a building was sent back. Lines are targeted as "> *" rather than
-   [pathLength]: Chrome doesn't re-style SVG elements by that camel-case
-   attribute when a class changes. */
+   that used to stand there. All motion is set inline by the script at the
+   end of index.html (plain transitions); this only holds the resting states. */
 .bldg { cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .bldg .hit { fill: transparent; stroke: none; }
 .bldg__then { opacity: 0; }
 .bldg__then > * { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .bldg__then .fill { fill: transparent; transition: fill .8s ease; }
-.bldg.is-old .bldg__now { opacity: 0; transition: opacity .35s ease; }
+
 .bldg.is-old .bldg__then { opacity: 1; }
 .bldg.is-old .bldg__then .fill { fill: var(--canvas); transition-delay: .6s; }
 /* going back is scripted (see the end of index.html): the old building
@@ -890,7 +886,7 @@ body {
 .bldg.is-old .neon { opacity: 1; animation: neon-sign 1.2s steps(1) 1.3s both; }
 @keyframes neon-sign { 0%, 12%, 30% { opacity: .15; } 6%, 20%, 40%, 100% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
-  .bldg.is-old .bldg__now, .bldg__then .fill, .bland__art .neon { transition: none; }
+  .bldg__then .fill, .bland__art .neon { transition: none; }
   .bldg.is-old .neon { animation: none; }
 }
 .bland__hint {
@@ -911,6 +907,9 @@ body {
   .bland__art .g { stroke-width: .95; }
 }
 .bland__art .fill { fill: var(--canvas); }
+/* the ground: covers anything below street level, so a block rising back
+   into place comes up out of the ground rather than over the road */
+.bland__art .ground { fill: var(--canvas); stroke: none; }
 .bland__title { margin-bottom: clamp(2rem, 5vh, 3rem); }
 .bland__title .t-line { display: block; }   /* always two lines */
 .bland__all {
