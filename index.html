@@ -9,7 +9,7 @@
   <link rel="icon" href="img/favicon-32.png" type="image/png" sizes="32x32">
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
   <link rel="preload" href="fonts/Archivo-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=b7f88545">
+  <link rel="stylesheet" href="css/style.css?v=7254abdc">
   <script src="js/finder.js?v=348b0a71" defer></script>
   <!-- Scroll-in animations are opt-in: only hide things up front when the script
        that reveals them can run, and not for people who prefer reduced motion -->
@@ -196,16 +196,17 @@
       </section>
     </article>
 
-    <!-- Coda: the closing chapter, set straight onto a painting -->
+    <!-- Coda: the closing note, set straight onto a painting -->
     <section class="texture texture--coda" aria-labelledby="ch-5" style="--focus: 70% 40%; --zoom: 1.2; --veil: .66" data-reveal="coda">
       <img class="texture__img" src="img/texture/wheat-field.webp" width="1800" height="1431" loading="lazy" decoding="async" alt="">
       <div class="coda">
         <p class="chapter__num">V.</p>
-        <h2 class="coda__title" id="ch-5"><span class="t-line">Plant gardens</span> <span class="t-line">you’ll <em>never see</em></span></h2>
+        <h2 class="coda__title" id="ch-5"><span class="t-line">Thank you</span> <span class="t-line">for <em>looking</em></span></h2>
         <div class="coda__body">
-          <p>There is an old saying that a society grows great when people plant trees whose shade they know they will never sit in. The most serious making is like that. It is a gift to people you will never meet.</p>
-          <p>So pursuing beauty in hard times isn’t escapism. It isn’t a turning away from the world’s problems. It is how we keep alive the things that make the world worth fixing in the first place.</p>
-          <p>Look slowly. Make something that will outlast you. Then look again.</p>
+          <p>If you’ve made it this far, thank you. In a world built for the scroll, you stayed. You read slowly and looked closely, which is exactly what this whole page has been asking for.</p>
+          <p>Everything here is work I’m proud of: words I meant, paintings I love, and a small argument that beauty is still worth our time. I made it to be stood in front of, not scrolled past.</p>
+          <p>Next time you’re walking somewhere, slow down for a block. Look up past the shopfronts. Someone, a long time ago, cared about what you’d see there.</p>
+          <p>Beauty didn’t die. You just have to look again.</p>
         </div>
         <p class="coda__sign">pierce</p>
       </div>
@@ -259,8 +260,10 @@
     // animate (CSS keyframes restart in iOS Safari when a class changes, and
     // class-based rules on these SVG lines aren't re-applied reliably in Chrome).
     //   restore: today's block fades; the old building draws in, outline first
-    //   return:  the old building un-draws, detail first; then today's block rises
-    // Taps during a change are ignored so nothing can fire twice.
+    //   return:  the old building rewinds (each line retracts back to where it
+    //            started), detail first, outline last; then today's block rises
+    // A repeat tap within 450ms is ignored (phones can deliver a fast tap as two
+    // clicks), and a tap mid-drawing rewinds smoothly from wherever it got to.
     (() => {
       const blds = [...document.querySelectorAll(".bldg")];
       const all = document.querySelector(".bland__all");
@@ -278,7 +281,6 @@
         all.textContent = on ? "bring back today\u2019s street" : "restore the whole street";
       };
       const restore = async (b) => {
-        b.busy = true;
         b.setAttribute("aria-pressed", "true");
         const lines = linesOf(b);
         const n = now(b);
@@ -289,8 +291,6 @@
           el.style.transition = reduce ? "none" : `stroke-dashoffset 1.1s ${ease} ${150 + Math.min(i * 30, 1100)}ms`;
           el.style.strokeDashoffset = "0";
         });
-        await wait(reduce ? 0 : 400);
-        b.busy = false;
       };
       const unrestore = async (b) => {
         b.busy = true;
@@ -299,11 +299,12 @@
         const n = now(b);
         const count = lines.length;
         b.classList.add("is-leaving");
+        // rewind: back to offset 1, the same hidden state the drawing started from
         lines.forEach((el, i) => {
-          el.style.transition = reduce ? "none" : `stroke-dashoffset .52s ${ease} ${Math.round((count - 1 - i) * (320 / count))}ms`;
-          el.style.strokeDashoffset = "-1";
+          el.style.transition = reduce ? "none" : `stroke-dashoffset .55s ${ease} ${Math.round((count - 1 - i) * (320 / count))}ms`;
+          el.style.strokeDashoffset = "1";
         });
-        await wait(reduce ? 0 : 880);
+        await wait(reduce ? 0 : 900);
         // the old building is gone: hide it and reset its lines without animating
         b.classList.remove("is-old", "is-leaving");
         lines.forEach((el) => { el.style.transition = "none"; el.style.strokeDashoffset = ""; });
@@ -321,6 +322,8 @@
       };
       const set = (b, old) => {
         if (b.busy || isOld(b) === old) return;
+        if (performance.now() - (b.last || 0) < 450) return;
+        b.last = performance.now();
         old ? restore(b) : unrestore(b);
         sync();
       };
